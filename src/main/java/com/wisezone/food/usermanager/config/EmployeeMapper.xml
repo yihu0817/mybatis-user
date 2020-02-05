@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wisezone.food.usermanager.dao.IEmployeeDao">
+	<resultMap type="com.wisezone.food.usermanager.entity.Employee" id="employeeResultMap">
+		<id property="id" column="id" jdbcType="INTEGER" />
+		<result property="name" column="name" jdbcType="VARCHAR" />
+		<association property="department" column="name" select="findDepartmentByEmployeeName"></association>
+	</resultMap>
+	
+	<select id="findEmployeeByName" parameterType="string" resultMap="employeeResultMap">
+		SELECT * FROM employee WHERE name = #{name}
+	</select>
+	
+	<!-- 根据员工姓名查找所在部门 -->
+	<select id="findDepartmentByEmployeeName" parameterType="string" resultMap="com.wisezone.food.usermanager.dao.IDepartmentDao.departmentResultMap">
+		SELECT * FROM department 
+		WHERE id = (SELECT d_id FROM employee WHERE name=#{name})
+	</select>
+</mapper>

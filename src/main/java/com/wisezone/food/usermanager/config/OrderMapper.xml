@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wisezone.food.usermanager.dao.IOrderDao">
+
+	<resultMap type="com.wisezone.food.usermanager.entity.Order" id="orderResultMap">
+		<id property="id" column="orderId" jdbcType="VARCHAR" />
+		<result property="number" column="orderNumber" jdbcType="VARCHAR" />
+		<result property="price" column="orderPrice" jdbcType="INTEGER" />
+	</resultMap>
+
+	<select id="findOrderById" parameterType="string" resultMap="orderAndPersonSelectResultMap">
+		SELECT orderId,orderNumber,orderPrice 
+		FROM orders 
+		WHERE
+		orderId = #{orderId}
+	</select>
+
+	<select id="findPersonByOrderId" parameterType="string" resultMap="com.wisezone.food.usermanager.dao.IPersonDao.personResultMap">
+		SELECT * FROM person WHERE personId = (SELECT pid FROM orders WHERE orderId = #{orderId})
+	</select>
+	
+	<resultMap type="com.wisezone.food.usermanager.entity.Order" id="orderAndPersonSelectResultMap">
+		<id property="id" column="orderId" jdbcType="VARCHAR" />
+		<result property="number" column="orderNumber" jdbcType="VARCHAR" />
+		<result property="price" column="orderPrice" jdbcType="INTEGER" />
+		<!-- 多对一的关联 -->
+		<association property="person" column="orderId" select="findPersonByOrderId"/>
+	</resultMap>
+	
+	<resultMap type="com.wisezone.food.usermanager.entity.Order" id="orderAndPersonResultMap">
+		<id property="id" column="orderId" jdbcType="VARCHAR" />
+		<result property="number" column="orderNumber" jdbcType="VARCHAR" />
+		<result property="price" column="orderPrice" jdbcType="INTEGER" />
+		<!-- 多对一的关联 -->
+		<association property="person" column="pid" resultMap="com.wisezone.food.usermanager.dao.IPersonDao.personResultMap"/>
+	</resultMap>
+	
+	
+
+	<select id="findOrderAndPersonById" parameterType="string" resultMap="orderAndPersonResultMap">
+		SELECT person.*,orders.* 
+		FROM orders, person 
+		WHERE orders.pid = person.personId 
+		AND orderId = #{orderId}
+	</select>
+
+
+</mapper>

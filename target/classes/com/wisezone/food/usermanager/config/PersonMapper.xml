@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wisezone.food.usermanager.dao.IPersonDao">
+
+	<resultMap type="com.wisezone.food.usermanager.entity.Person" id="personResultMap">
+		<id property="id" column="personId" jdbcType="VARCHAR" />
+		<result property="name" column="personName" jdbcType="VARCHAR" />
+		<result property="address" column="personAddress" jdbcType="VARCHAR" />
+		<result property="tel" column="personTel" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<select id="findPersonById" parameterType="string"	resultMap="personAndOrderSelectResultMap">
+		SELECT personId,personName,personAddress,personTel 
+		FROM person 
+		WHERE personId = #{personid}
+	</select>
+	
+	<resultMap type="com.wisezone.food.usermanager.entity.Person" id="personAndOrderSelectResultMap">
+		<id property="id" column="personId" jdbcType="VARCHAR" />
+		<result property="name" column="personName" jdbcType="VARCHAR" />
+		<result property="address" column="personAddress" jdbcType="VARCHAR" />
+		<result property="tel" column="personTel" jdbcType="VARCHAR" />
+		<!-- 使用select标签子查询关联集合，column属性是查询条件字段,否则column是外键字段 -->
+		<collection property="orders"  column="personId" select="findOrdersByPersonId"></collection>
+	</resultMap>
+	
+	<select id="findOrdersByPersonId" parameterType="string" resultMap="com.wisezone.food.usermanager.dao.IOrderDao.orderResultMap">
+		SELECT * FROM orders WHERE pid = #{personid}
+	</select>
+	
+	<resultMap type="com.wisezone.food.usermanager.entity.Person" id="personAndOrdersResultMap">
+		<id property="id" column="personId" jdbcType="VARCHAR" />
+		<result property="name" column="personName" jdbcType="VARCHAR" />
+		<result property="address" column="personAddress" jdbcType="VARCHAR" />
+		<result property="tel" column="personTel" jdbcType="VARCHAR" />
+		<!-- 一对多关联 -->
+		<collection property="orders" column="pid" resultMap="com.wisezone.food.usermanager.dao.IOrderDao.orderResultMap"></collection>
+		
+	</resultMap>
+	
+	<select id="findPersonAndOrdersById" parameterType="string" resultMap="personAndOrdersResultMap">
+		SELECT p.* , o.* FROM person AS p 
+		INNER JOIN orders AS o 
+		ON p.personId = o.pid
+		WHERE p.personId = #{personId}
+	</select>
+	
+	
+</mapper>

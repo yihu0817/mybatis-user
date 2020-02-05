@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wisezone.food.usermanager.dao.IStudentDao">
+
+	<resultMap type="com.wisezone.food.usermanager.entity.Courses" id="courseResultMap">
+		<id property="id" column="cid" jdbcType="INTEGER" />
+		<result property="name" column="courses_name" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<resultMap type="com.wisezone.food.usermanager.entity.Student" id="studentResultMap">
+		<id property="id" column="sid" jdbcType="INTEGER" />
+		<result property="name" column="student_name" jdbcType="VARCHAR" />
+		<collection property="courses" column="student_name" select="findAllCourseByStuName"></collection>
+	</resultMap>
+
+	<select id="findStudentByName" parameterType="string" resultMap="studentResultMap">
+		SELECT * FROM t_student WHERE student_name = #{name}
+	</select>
+	
+	<!-- 根据姓名查找所有课程 -->
+	<select id="findAllCourseByStuName" parameterType="string" resultMap="courseResultMap">
+		SELECT * FROM t_courses 
+		WHERE 
+		cid in (SELECT fk_cou_id FROM t_stu_cou WHERE fk_stu_id = (SELECT sid FROM t_student WHERE student_name = #{name}))
+	</select>
+	
+	
+	
+</mapper>
